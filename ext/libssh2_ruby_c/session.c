@@ -1,5 +1,20 @@
 #include <libssh2_ruby.h>
 
+/*
+ * Helper to return the LIBSSH2_SESSION pointer for the given
+ * instance.
+ * */
+static inline LIBSSH2_SESSION *
+get_session(VALUE self) {
+    LibSSH2_Ruby_Session *session;
+    Data_Get_Struct(self, LibSSH2_Ruby_Session, session);
+    return session->session;
+}
+
+/*
+ * Called when the object is deallocated in order to deallocate the
+ * interal state.
+ * */
 static void
 session_dealloc(LibSSH2_Ruby_Session *session) {
     if (session->session != NULL) {
@@ -9,6 +24,10 @@ session_dealloc(LibSSH2_Ruby_Session *session) {
     free(session);
 }
 
+/*
+ * Called to allocate the memory associated with the object. We allocate
+ * memory for internal structs and set them onto the object.
+ * */
 static VALUE
 allocate(VALUE self) {
     LibSSH2_Ruby_Session *session = malloc(sizeof(LibSSH2_Ruby_Session));
@@ -43,8 +62,24 @@ initialize(VALUE self) {
     return self;
 }
 
+/*
+ * call-seq:
+ *     session.set_blocking(true) -> true
+ *
+ * If the argument is true, enables blocking semantics for this session,
+ * otherwise enables non-blocking semantics.
+ *
+ * */
+static VALUE
+set_blocking(VALUE self, VALUE blocking) {
+    int blocking_arg = blocking == Qtrue ? 1 : 0;
+    libssh2_session_set_blocking(get_session(self), blocking_arg);
+    return blocking;
+}
+
 void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
+    rb_define_method(cSession, "set_blocking", set_blocking, 1);
 }
