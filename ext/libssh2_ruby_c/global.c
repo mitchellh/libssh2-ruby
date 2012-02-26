@@ -2,6 +2,24 @@
 
 /*
  * call-seq:
+ *     LibSSH2::Native.init -> int
+ *
+ * Initializes libssh2 to run and returns the error code (0 if no error).
+ * Note that this is not threadsafe and must be called before any other
+ * libssh2 method. libssh2-ruby will automatically call this for you, usually,
+ * but if you're only using the methods on Native, then you must call this
+ * yourself.
+ *
+ * */
+static VALUE
+init(VALUE module) {
+    // XXX Raise proper exception if error returned is not 0
+    int result = libssh2_init(0);
+    return INT2FIX(result);
+}
+
+/*
+ * call-seq:
  *     LibSSH2::Native.version -> string
  *
  * Returns the version of libssh2 that is running.
@@ -23,5 +41,6 @@ version(VALUE module) {
 }
 
 void init_libssh2_global() {
+    rb_define_singleton_method(mLibSSH2_Native, "init", init, 0);
     rb_define_singleton_method(mLibSSH2_Native, "version", version, 0);
 }
