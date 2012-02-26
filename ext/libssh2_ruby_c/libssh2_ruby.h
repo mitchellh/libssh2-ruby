@@ -4,7 +4,8 @@
 #include <ruby.h>
 #include <libssh2.h>
 
-extern VALUE mLibSSH2;
-extern VALUE mLibSSH2_Native;
+extern VALUE rb_mLibSSH2;
+extern VALUE rb_mLibSSH2_Native;
+extern VALUE rb_cLibSSH2_Native_Session;
 
 #endif

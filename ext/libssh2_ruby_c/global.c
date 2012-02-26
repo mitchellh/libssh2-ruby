@@ -55,7 +55,7 @@ version(VALUE module) {
 }
 
 void init_libssh2_global() {
-    rb_define_singleton_method(mLibSSH2_Native, "exit", libexit, 0);
-    rb_define_singleton_method(mLibSSH2_Native, "init", init, 0);
-    rb_define_singleton_method(mLibSSH2_Native, "version", version, 0);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "exit", libexit, 0);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "init", init, 0);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "version", version, 0);
 }
