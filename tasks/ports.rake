@@ -1,8 +1,9 @@
 require "mini_portile"
 
+libssh2_version = "1.4.0"
 $recipes = {}
-$recipes[:libssh2] = MiniPortile.new("libssh2", "1.4.0")
-$recipes[:libssh2].files << "http://www.libssh2.org/download/libssh2-1.4.0.tar.gz"
+$recipes[:libssh2] = MiniPortile.new("libssh2", libssh2_version)
+$recipes[:libssh2].files << "http://www.libssh2.org/download/libssh2-#{libssh2_version}.tar.gz"
 
 namespace :ports do
   directory "ports"
