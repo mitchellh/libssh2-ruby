@@ -13,9 +13,13 @@
  * */
 static VALUE
 init(VALUE module) {
-    // XXX Raise proper exception if error returned is not 0
     int result = libssh2_init(0);
-    return INT2FIX(result);
+    if (result != 0) {
+        rb_exc_raise(libssh2_ruby_wrap_error(result));
+        return Qnil;
+    }
+
+    return Qtrue;
 }
 
 /*

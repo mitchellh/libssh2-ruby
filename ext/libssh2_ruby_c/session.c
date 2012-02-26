@@ -79,8 +79,8 @@ handshake(VALUE self, VALUE num_fd) {
     if (ret == 0 || ret == LIBSSH2_ERROR_EAGAIN)
         return INT2FIX(ret);
 
-    // XXX: Exception
-    return INT2FIX(ret);
+    rb_exc_raise(libssh2_ruby_wrap_error(ret));
+    return Qnil;
 }
 
 /*
