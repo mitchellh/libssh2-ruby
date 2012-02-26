@@ -12,7 +12,9 @@ end
 
 # Verify that we have libssh2
 asplode("libssh2.h") if !find_header("libssh2.h")
-asplode("libssh2") if !find_library("ssh2", "libssh2_init")
+asplode("libcrypto") if !find_library("crypto", "CRYPTO_num_locks")
+asplode("openssl")   if !find_library("ssl", "SSL_library_init")
+asplode("libssh2")   if !find_library("ssh2", "libssh2_init")
 
 # Create the makefile with the expected library name.
 create_makefile("libssh2/libssh2")
