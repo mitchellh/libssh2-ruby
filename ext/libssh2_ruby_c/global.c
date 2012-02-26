@@ -34,6 +34,20 @@ libexit(VALUE module) {
 
 /*
  * call-seq:
+ *     LibSSH2::Native.session_init -> LibSSH2::Native::Session
+ *
+ * Creates a new LibSSH2 session and returns an object representing
+ * this session.
+ *
+ * */
+static VALUE
+session_init(VALUE module) {
+    // LibSSH2::Native::Session.new
+    return rb_class_new_instance(0, 0, rb_cLibSSH2_Native_Session);
+}
+
+/*
+ * call-seq:
  *     LibSSH2::Native.version -> string
  *
  * Returns the version of libssh2 that is running.
@@ -57,5 +71,6 @@ version(VALUE module) {
 void init_libssh2_global() {
     rb_define_singleton_method(rb_mLibSSH2_Native, "exit", libexit, 0);
     rb_define_singleton_method(rb_mLibSSH2_Native, "init", init, 0);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "session_init", session_init, 0);
     rb_define_singleton_method(rb_mLibSSH2_Native, "version", version, 0);
 }
