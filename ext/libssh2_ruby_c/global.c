@@ -20,6 +20,20 @@ init(VALUE module) {
 
 /*
  * call-seq:
+ *     Native.exit -> true
+ *
+ * Exits libssh2, deallocating any memory used internally. If this is called
+ * Native.init must be called prior to doing anything with libssh2 again.
+ *
+ * */
+static VALUE
+libexit(VALUE module) {
+    libssh2_exit();
+    return Qtrue;
+}
+
+/*
+ * call-seq:
  *     LibSSH2::Native.version -> string
  *
  * Returns the version of libssh2 that is running.
@@ -41,6 +55,7 @@ version(VALUE module) {
 }
 
 void init_libssh2_global() {
+    rb_define_singleton_method(mLibSSH2_Native, "exit", libexit, 0);
     rb_define_singleton_method(mLibSSH2_Native, "init", init, 0);
     rb_define_singleton_method(mLibSSH2_Native, "version", version, 0);
 }
