@@ -46,12 +46,28 @@ session_init(VALUE module) {
     return rb_class_new_instance(0, 0, rb_cLibSSH2_Native_Session);
 }
 
+/*
+ * call-seq:
+ *     Native.handshake(fileno) -> int
+ *
+ * See `Session#handshake`
+ * */
+static VALUE
+session_handshake(VALUE module, VALUE session, VALUE fd) {
+    CHECK_SESSION(session);
+    return rb_funcall(session, rb_intern("handshake"), 1, fd);
+}
+
+/*
+ * call-seq:
+ *     Native.set_blocking(session, true) -> true
+ *
+ * See `Session#set_blocking`
+ * */
 static VALUE
 session_set_blocking(VALUE module, VALUE session, VALUE blocking) {
-   if (!rb_obj_is_kind_of(session, rb_cLibSSH2_Native_Session))
-      rb_raise(rb_eArgError, "session must be a native session type");
-
-   return rb_funcall(session, rb_intern("set_blocking"), 1, blocking);
+    CHECK_SESSION(session);
+    return rb_funcall(session, rb_intern("set_blocking"), 1, blocking);
 }
 
 /*
@@ -80,6 +96,7 @@ void init_libssh2_global() {
     rb_define_singleton_method(rb_mLibSSH2_Native, "exit", libexit, 0);
     rb_define_singleton_method(rb_mLibSSH2_Native, "init", init, 0);
     rb_define_singleton_method(rb_mLibSSH2_Native, "session_init", session_init, 0);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "session_handshake", session_handshake, 2);
     rb_define_singleton_method(rb_mLibSSH2_Native, "session_set_blocking", session_set_blocking, 2);
     rb_define_singleton_method(rb_mLibSSH2_Native, "version", version, 0);
 }

@@ -10,6 +10,15 @@
  * */
 #define BLOCK(stmt) while ((stmt) == LIBSSH2_ERROR_EAGAIN)
 
+/*
+ * Verifies the given argument is a valid session. This is called a lot
+ * so I macro-fied it.
+ * */
+#define CHECK_SESSION(session) do{\
+    if (!rb_obj_is_kind_of(session, rb_cLibSSH2_Native_Session))\
+        rb_raise(rb_eArgError, "session must be a native session type");\
+} while (0)
+
 extern VALUE rb_mLibSSH2;
 extern VALUE rb_mLibSSH2_Native;
 extern VALUE rb_cLibSSH2_Native_Session;

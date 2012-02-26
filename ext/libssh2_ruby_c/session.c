@@ -64,6 +64,27 @@ initialize(VALUE self) {
 
 /*
  * call-seq:
+ *     session.handshake(socket.fileno) -> int
+ *
+ * Initiates the handshake sequence for this session. You must
+ * pass in the file number for the socket to use. This wll return
+ * 0 on success, or raise an exception otherwise.
+ *
+ * */
+static VALUE
+handshake(VALUE self, VALUE num_fd) {
+    int fd = NUM2INT(num_fd);
+    int ret = libssh2_session_handshake(get_session(self), fd);
+
+    if (ret == 0 || ret == LIBSSH2_ERROR_EAGAIN)
+        return INT2FIX(ret);
+
+    // XXX: Exception
+    return INT2FIX(ret);
+}
+
+/*
+ * call-seq:
  *     session.set_blocking(true) -> true
  *
  * If the argument is true, enables blocking semantics for this session,
@@ -81,5 +102,6 @@ void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
+    rb_define_method(cSession, "handshake", handshake, 1);
     rb_define_method(cSession, "set_blocking", set_blocking, 1);
 }
