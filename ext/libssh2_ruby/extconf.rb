@@ -17,4 +17,4 @@ asplode("openssl")   if !find_library("ssl", "SSL_library_init")
 asplode("libssh2")   if !find_library("ssh2", "libssh2_init")
 
 # Create the makefile with the expected library name.
-create_makefile("libssh2/libssh2")
+create_makefile("libssh2/libssh2_ruby")

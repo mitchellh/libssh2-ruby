@@ -1,3 +1,3 @@
 require "rake/extensiontask"
 
-Rake::ExtensionTask.new("libssh2")
+Rake::ExtensionTask.new("libssh2_ruby")
