@@ -1,9 +1,30 @@
 # libssh2 Ruby Bindings
 
-This library provides bindings to [libssh2](http://www.libssh2.org).
+This library provides bindings to [libssh2](http://www.libssh2.org). LibSSH2
+is a modern C-library implementing the SSH2 protocol and made by the same
+people who made [cURL](http://curl.haxx.se/).
 
 **Project status:** Alpha. Much of the library is still not yet done,
 and proper cross-platform testing has not been done.
+
+## Motivation
+
+The creation of `libssh2-ruby` was motivated primarily by edge-case issues
+experienced by [Vagrant](http://vagrantup.com) while using
+[Net-SSH](https://github.com/net-ssh/net-ssh). Net-SSH has been around 7
+years and is a stable library, but the Vagrant project found that around 1%
+of users were experiencing connectivity issues primarily revolving around
+slightly incompliant behavior by remote servers.
+
+`libssh2` is a heavily used library created by the same people as
+[cURL](http://curl.haxx.se/), simply one of the best command line applications
+around. It has been around for a few years and handles the SSH2 protocol
+very well. It is under active development and the motivation for libssh2
+to always work is high, since it is used by many high-profile open source
+projects.
+
+For this reason, `libssh2-ruby` was made to interface with this high
+quality library and provide a stable and robust SSH2 interface for Ruby.
 
 ## Usage
 
@@ -21,7 +42,7 @@ API to limit you in any way. Therefore, it is my intension to expose
 all the native libssh2 functions on the `LibSSH2::Native`
 module as singleton methods, without the `libssh2_` prefix. So if you want
 to call `libssh2_init`, you actually call `LibSSH2::Native.init`. Here is
-an example that does some things with sessions:
+an example that executes a basic `echo` via SSH:
 
 ```ruby
 require "libssh2"
@@ -32,7 +53,7 @@ include LibSSH2::Native
 # to libssh2. libssh2-ruby also provides a more idiomatic Ruby interface
 # that you can see above in the README.
 session = session_init
-session_set_blocking(session, false)
+session_set_blocking(session, true)
 session_handshake(session, socket.fileno)
 userauth_password(session, "username", "password")
 
