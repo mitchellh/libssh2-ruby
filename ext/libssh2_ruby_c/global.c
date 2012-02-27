@@ -76,6 +76,18 @@ session_set_blocking(VALUE module, VALUE session, VALUE blocking) {
 
 /*
  * call-seq:
+ *     Native.userauth_password(session, "username", "password") -> true
+ *
+ * See `Session#userauth_password`
+ * */
+static VALUE
+userauth_password(VALUE module, VALUE session, VALUE username, VALUE password) {
+    CHECK_SESSION(session);
+    return rb_funcall(session, rb_intern("userauth_password"), 2, username, password);
+}
+
+/*
+ * call-seq:
  *     LibSSH2::Native.version -> string
  *
  * Returns the version of libssh2 that is running.
@@ -102,5 +114,6 @@ void init_libssh2_global() {
     rb_define_singleton_method(rb_mLibSSH2_Native, "session_init", session_init, 0);
     rb_define_singleton_method(rb_mLibSSH2_Native, "session_handshake", session_handshake, 2);
     rb_define_singleton_method(rb_mLibSSH2_Native, "session_set_blocking", session_set_blocking, 2);
+    rb_define_singleton_method(rb_mLibSSH2_Native, "userauth_password", userauth_password, 3);
     rb_define_singleton_method(rb_mLibSSH2_Native, "version", version, 0);
 }

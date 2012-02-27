@@ -15,7 +15,6 @@ void Init_libssh2_ruby_c() {
     // Initialize the various parts of the C-based API. The source
     // for these are in their respective files. i.e. global.c has
     // init_libssh2_global.
-    init_libssh2_error();
     init_libssh2_global();
     init_libssh2_session();
 }

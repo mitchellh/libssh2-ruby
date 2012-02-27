@@ -19,6 +19,13 @@
         rb_raise(rb_eArgError, "session must be a native session type");\
 } while (0)
 
+#define HANDLE_LIBSSH2_RESULT(value) do{\
+    if (value == 0 || value == LIBSSH2_ERROR_EAGAIN)\
+        return INT2FIX(value);\
+    rb_exc_raise(libssh2_ruby_wrap_error(value));\
+    return Qnil;\
+} while (0)
+
 extern VALUE rb_mLibSSH2;
 extern VALUE rb_mLibSSH2_Native;
 extern VALUE rb_eLibSSH2_Native_Error;

@@ -75,12 +75,7 @@ static VALUE
 handshake(VALUE self, VALUE num_fd) {
     int fd = NUM2INT(num_fd);
     int ret = libssh2_session_handshake(get_session(self), fd);
-
-    if (ret == 0 || ret == LIBSSH2_ERROR_EAGAIN)
-        return INT2FIX(ret);
-
-    rb_exc_raise(libssh2_ruby_wrap_error(ret));
-    return Qnil;
+    HANDLE_LIBSSH2_RESULT(ret);
 }
 
 /*
@@ -98,10 +93,24 @@ set_blocking(VALUE self, VALUE blocking) {
     return blocking;
 }
 
+static VALUE
+userauth_password(VALUE self, VALUE username, VALUE password) {
+    int result;
+    rb_check_type(username, T_STRING);
+    rb_check_type(password, T_STRING);
+
+    result = libssh2_userauth_password(
+            get_session(self),
+            (const char *)StringValuePtr(username),
+            (const char *)StringValuePtr(password));
+    HANDLE_LIBSSH2_RESULT(result);
+}
+
 void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
     rb_define_method(cSession, "handshake", handshake, 1);
     rb_define_method(cSession, "set_blocking", set_blocking, 1);
+    rb_define_method(cSession, "userauth_password", userauth_password, 2);
 }
