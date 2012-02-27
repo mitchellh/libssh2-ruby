@@ -38,7 +38,7 @@ require "libssh2"
 ```
 
 However, if you require more fine-grained control, I don't want the
-API to limit you in any way. Therefore, it is my intension to expose
+API to limit you in any way. Therefore, it is my intention to expose
 all the native libssh2 functions on the `LibSSH2::Native`
 module as singleton methods, without the `libssh2_` prefix. So if you want
 to call `libssh2_init`, you actually call `LibSSH2::Native.init`. Here is
