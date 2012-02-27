@@ -123,6 +123,28 @@ set_blocking(VALUE self, VALUE blocking) {
     return blocking;
 }
 
+/*
+ * call-seq:
+ *     session.userauth_authenticated -> true/false
+ *
+ * Returns a boolean of whether this session has been authenticated or
+ * not.
+ *
+ * */
+static VALUE
+userauth_authenticated(VALUE self) {
+    return libssh2_userauth_authenticated(get_session(self)) == 1 ?
+        Qtrue :
+        Qfalse;
+}
+
+/*
+ * call-seq:
+ *     session.userauth_password("username", "password")
+ *
+ * Attempts to authenticate using a username and password.
+ *
+ * */
 static VALUE
 userauth_password(VALUE self, VALUE username, VALUE password) {
     int result;
@@ -140,6 +162,7 @@ void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
+    rb_define_method(cSession, "userauth_authenticated", userauth_authenticated, 0);
     rb_define_method(cSession, "handshake", handshake, 1);
     rb_define_method(cSession, "set_blocking", set_blocking, 1);
     rb_define_method(cSession, "userauth_password", userauth_password, 2);

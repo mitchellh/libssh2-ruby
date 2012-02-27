@@ -36,6 +36,7 @@ module LibSSH2
 
     proxy_method :session, :set_blocking, Native::Session
     proxy_method :session, :handshake, Native::Session
+    proxy_method :userauth_authenticated, Native::Session
     proxy_method :userauth_password, Native::Session
 
     #----------------------------------------------------------------
