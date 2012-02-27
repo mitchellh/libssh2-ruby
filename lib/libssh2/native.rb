@@ -46,5 +46,6 @@ module LibSSH2
     end
 
     proxy_method :channel, :exec, Native::Channel
+    proxy_method :channel, :read, Native::Channel
   end
 end

@@ -105,9 +105,46 @@ exec(VALUE self, VALUE command) {
     HANDLE_LIBSSH2_RESULT(result);
 }
 
+/*
+ * call-seq:
+ *     channel.read -> [string, result_code]
+ *
+ * Reads from the channel. This will return the data it got as a string,
+ * along with the result code.
+ *
+ * */
+static VALUE
+read(VALUE self) {
+    int result;
+    char buffer[0x4000];
+    VALUE data = rb_str_buf_new(0x2000);
+    LIBSSH2_CHANNEL *channel = get_channel(self);
+
+    do {
+        // Read from the channel
+        result = libssh2_channel_read(channel, buffer, sizeof(buffer));
+
+        if (result > 0) {
+            // Read succeeded, append to our string with the same number
+            // of bytes that libssh2 said that we read.
+            data = rb_str_buf_cat(data, buffer, result);
+        } else if (result < 0) {
+            // If we got EAGAIN, then its not a problem, we just re-loop.
+            // Otherwise, we throw an error!
+            if (result != LIBSSH2_ERROR_EAGAIN) {
+                rb_exc_raise(libssh2_ruby_wrap_error(result));
+                return Qnil;
+            }
+        }
+    } while(result > 0);
+
+    return rb_ary_new3(2, data, INT2FIX(result));
+}
+
 void init_libssh2_channel() {
     VALUE cChannel = rb_cLibSSH2_Native_Channel;
     rb_define_alloc_func(cChannel, allocate);
     rb_define_method(cChannel, "initialize", initialize, 1);
     rb_define_method(cChannel, "exec", exec, 1);
+    rb_define_method(cChannel, "read", read, 0);
 }
