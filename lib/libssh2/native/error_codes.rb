@@ -51,3 +51,13 @@ LIBSSH_ERRORS_BY_KEY = {
 
 # Also provide a lookup by code
 LIBSSH_ERRORS_BY_CODE = LIBSSH_ERRORS_BY_KEY.invert
+
+# Define the errors as constants on LibSSH2::Native so they
+# can be referenced by the code more easily.
+module LibSSH2
+  module Native
+    LIBSSH_ERRORS_BY_KEY.each do |key, value|
+      const_set(key, value)
+    end
+  end
+end
