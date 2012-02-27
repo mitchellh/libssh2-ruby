@@ -25,8 +25,21 @@ an example that does some things with sessions:
 
 ```ruby
 require "libssh2"
+include LibSSH2::Native
 
-session = LibSSH2::Native.session_init
-LibSSH2::Native.session_set_blocking(session, false)
-LibSSH2::Native.session_free(session)
+# Remember, we're using the _native_ interface so below looks a lot
+# like C and some nasty Ruby code, but it is the direct interface
+# to libssh2. libssh2-ruby also provides a more idiomatic Ruby interface
+# that you can see above in the README.
+session = session_init
+session_set_blocking(session, false)
+session_handshake(session, socket.fileno)
+userauth_password(session, "username", "password")
+
+channel = channel_open_session(session)
+channel_exec(channel, "echo hello")
+data, _ = channel_read(channel)
+
+# Outputs "hello\n"
+puts data
 ```
