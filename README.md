@@ -46,12 +46,17 @@ an example that executes a basic `echo` via SSH:
 
 ```ruby
 require "libssh2"
+require "socket"
 include LibSSH2::Native
+
 
 # Remember, we're using the _native_ interface so below looks a lot
 # like C and some nasty Ruby code, but it is the direct interface
 # to libssh2. libssh2-ruby also provides a more idiomatic Ruby interface
 # that you can see above in the README.
+socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+socket.connect Socket.sockaddr_in("2222", "127.0.0.1")
+
 session = session_init
 session_set_blocking(session, true)
 session_handshake(session, socket.fileno)
