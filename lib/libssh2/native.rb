@@ -27,6 +27,9 @@ module LibSSH2
       end
     end
 
+    #----------------------------------------------------------------
+    # Session Methods
+    #----------------------------------------------------------------
     def self.session_init
       Native::Session.new
     end
@@ -34,5 +37,12 @@ module LibSSH2
     proxy_method :session, :set_blocking, Native::Session
     proxy_method :session, :handshake, Native::Session
     proxy_method :userauth_password, Native::Session
+
+    #----------------------------------------------------------------
+    # Channel Methods
+    #----------------------------------------------------------------
+    def self.channel_open_session(session)
+      Native::Channel.new(session)
+    end
   end
 end
