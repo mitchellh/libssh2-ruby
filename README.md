@@ -49,7 +49,6 @@ require "libssh2"
 require "socket"
 include LibSSH2::Native
 
-
 # Remember, we're using the _native_ interface so below looks a lot
 # like C and some nasty Ruby code, but it is the direct interface
 # to libssh2. libssh2-ruby also provides a more idiomatic Ruby interface
