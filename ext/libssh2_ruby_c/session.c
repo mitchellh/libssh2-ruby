@@ -1,6 +1,33 @@
 #include <libssh2_ruby.h>
 
 /*
+ * Increases the reference counter on the ruby session container.
+ * */
+void
+libssh2_ruby_session_retain(LibSSH2_Ruby_Session *session_data) {
+    session_data->refcount++;
+}
+
+/*
+ * Decrements the reference counter on the ruby session container.
+ * When this goes to 0 then the session will be released.
+ * */
+void
+libssh2_ruby_session_release(LibSSH2_Ruby_Session *session_data) {
+    // Decrease the reference count
+    session_data->refcount--;
+
+    // If the reference count is 0, free all the things!
+    if (session_data->refcount == 0) {
+        if (session_data->session != NULL) {
+            BLOCK(libssh2_session_free(session_data->session));
+        }
+
+        free(session_data);
+    }
+}
+
+/*
  * Helper to return the LIBSSH2_SESSION pointer for the given
  * instance.
  * */
@@ -16,12 +43,8 @@ get_session(VALUE self) {
  * interal state.
  * */
 static void
-session_dealloc(LibSSH2_Ruby_Session *session) {
-    if (session->session != NULL) {
-        BLOCK(libssh2_session_free(session->session));
-    }
-
-    free(session);
+session_dealloc(LibSSH2_Ruby_Session *session_data) {
+    libssh2_ruby_session_release(session_data);
 }
 
 /*
@@ -31,7 +54,8 @@ session_dealloc(LibSSH2_Ruby_Session *session) {
 static VALUE
 allocate(VALUE self) {
     LibSSH2_Ruby_Session *session = malloc(sizeof(LibSSH2_Ruby_Session));
-    session->session = NULL;
+    session->session  = NULL;
+    session->refcount = 0;
 
     return Data_Wrap_Struct(self, 0, session_dealloc, session);
 }
@@ -58,6 +82,9 @@ initialize(VALUE self) {
         rb_raise(rb_eRuntimeError, "session init failed");
         return Qnil;
     }
+
+    // Retain so that we have a proper refcount
+    libssh2_ruby_session_retain(session);
 
     return self;
 }

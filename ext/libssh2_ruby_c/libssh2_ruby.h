@@ -29,6 +29,7 @@
 extern VALUE rb_mLibSSH2;
 extern VALUE rb_mLibSSH2_Native;
 extern VALUE rb_eLibSSH2_Native_Error;
+extern VALUE rb_cLibSSH2_Native_Channel;
 extern VALUE rb_cLibSSH2_Native_Session;
 
 /*
@@ -37,11 +38,24 @@ extern VALUE rb_cLibSSH2_Native_Session;
  * */
 typedef struct {
     LIBSSH2_SESSION *session;
+    int refcount;
 } LibSSH2_Ruby_Session;
+
+/*
+ * The struct embedded with LibSSH2::Native::Channel classes.
+ * */
+typedef struct {
+    LIBSSH2_CHANNEL *channel;
+    LibSSH2_Ruby_Session *session;
+} LibSSH2_Ruby_Channel;
 
 void init_libssh2_error();
 void init_libssh2_global();
+void init_libssh2_channel();
 void init_libssh2_session();
+
+void libssh2_ruby_session_retain(LibSSH2_Ruby_Session *);
+void libssh2_ruby_session_release(LibSSH2_Ruby_Session *);
 
 VALUE libssh2_ruby_wrap_error(int);
 
