@@ -20,6 +20,9 @@ libssh2_ruby_session_release(LibSSH2_Ruby_Session *session_data) {
     // If the reference count is 0, free all the things!
     if (session_data->refcount == 0) {
         if (session_data->session != NULL) {
+            BLOCK(libssh2_session_disconnect(
+                        session_data->session,
+                        "Normal shutdown by libssh2-ruby."));
             BLOCK(libssh2_session_free(session_data->session));
         }
 
