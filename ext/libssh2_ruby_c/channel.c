@@ -55,6 +55,9 @@ initialize(VALUE self, VALUE rb_session) {
     LIBSSH2_SESSION *session;
     LibSSH2_Ruby_Channel *channel_data;
 
+    // Verify we have a valid session object
+    CHECK_SESSION(rb_session);
+
     // Get the internal data from the instance.
     Data_Get_Struct(self, LibSSH2_Ruby_Channel, channel_data);
 
