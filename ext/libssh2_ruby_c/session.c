@@ -128,8 +128,8 @@ userauth_password(VALUE self, VALUE username, VALUE password) {
 
     result = libssh2_userauth_password(
             get_session(self),
-            (const char *)StringValuePtr(username),
-            (const char *)StringValuePtr(password));
+            StringValuePtr(username),
+            StringValuePtr(password));
     HANDLE_LIBSSH2_RESULT(result);
 }
 

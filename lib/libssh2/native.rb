@@ -44,5 +44,7 @@ module LibSSH2
     def self.channel_open_session(session)
       Native::Channel.new(session)
     end
+
+    proxy_method :channel, :exec, Native::Channel
   end
 end

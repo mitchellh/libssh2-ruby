@@ -88,8 +88,26 @@ initialize(VALUE self, VALUE rb_session) {
     return self;
 }
 
+/*
+ * call-seq:
+ *     channel.exec("echo foo") -> Qtrue
+ *
+ * Executes a command line method on the channel.
+ *
+ * */
+static VALUE
+exec(VALUE self, VALUE command) {
+    int result;
+
+    rb_check_type(command, T_STRING);
+
+    result = libssh2_channel_exec(get_channel(self), StringValuePtr(command));
+    HANDLE_LIBSSH2_RESULT(result);
+}
+
 void init_libssh2_channel() {
     VALUE cChannel = rb_cLibSSH2_Native_Channel;
     rb_define_alloc_func(cChannel, allocate);
     rb_define_method(cChannel, "initialize", initialize, 1);
+    rb_define_method(cChannel, "exec", exec, 1);
 }
