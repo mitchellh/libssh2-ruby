@@ -2,6 +2,9 @@
 
 This library provides bindings to [libssh2](http://www.libssh2.org).
 
+**Project status:** Alpha. Much of the library is still not yet done,
+and proper cross-platform testing has not been done.
+
 ## Usage
 
 The API for interacting with SSH is idiomatic Ruby and you should find
