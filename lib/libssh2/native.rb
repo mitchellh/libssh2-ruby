@@ -38,6 +38,7 @@ module LibSSH2
     proxy_method :session, :handshake, Native::Session
     proxy_method :userauth_authenticated, Native::Session
     proxy_method :userauth_password, Native::Session
+    proxy_method :userauth_publickey_fromfile, Native::Session
 
     #----------------------------------------------------------------
     # Channel Methods

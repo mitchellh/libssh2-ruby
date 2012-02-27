@@ -158,12 +158,42 @@ userauth_password(VALUE self, VALUE username, VALUE password) {
     HANDLE_LIBSSH2_RESULT(result);
 }
 
+/*
+ * call-seq:
+ *     session.userauth_publickey_fromfile("username", "/etc/key.pub", "/etc/key", "foo")
+ *
+ * Attempts to authenticate using public and private keys from files.
+ *
+ * */
+static VALUE
+userauth_publickey_fromfile(VALUE self,
+        VALUE username,
+        VALUE publickey_path,
+        VALUE privatekey_path,
+        VALUE passphrase) {
+    int result;
+    rb_check_type(username, T_STRING);
+    rb_check_type(publickey_path, T_STRING);
+    rb_check_type(privatekey_path, T_STRING);
+    rb_check_type(passphrase, T_STRING);
+
+    result = libssh2_userauth_publickey_fromfile(
+            get_session(self),
+            StringValuePtr(username),
+            StringValuePtr(publickey_path),
+            StringValuePtr(privatekey_path),
+            StringValuePtr(passphrase));
+    HANDLE_LIBSSH2_RESULT(result);
+}
+
 void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
-    rb_define_method(cSession, "userauth_authenticated", userauth_authenticated, 0);
     rb_define_method(cSession, "handshake", handshake, 1);
     rb_define_method(cSession, "set_blocking", set_blocking, 1);
+    rb_define_method(cSession, "userauth_authenticated", userauth_authenticated, 0);
     rb_define_method(cSession, "userauth_password", userauth_password, 2);
+    rb_define_method(cSession, "userauth_publickey_fromfile",
+            userauth_publickey_fromfile, 4);
 }
