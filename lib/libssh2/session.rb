@@ -1,7 +1,7 @@
 require "socket"
 
 module LibSSH2
-  # Represents a session, or a connection for SSH.
+  # Represents a session, or a connection to a remote host for SSH.
   class Session
     # Initializes a new session for the given host and port. This will
     # open a connection with the remote host.
@@ -25,7 +25,7 @@ module LibSSH2
     # Returns a boolean denoting whether this session has been authenticated
     # yet or not.
     #
-    # @return [TrueClass, FalseClass]
+    # @return [Boolean]
     def authenticated?
       @session.userauth_authenticated
     end
@@ -33,7 +33,9 @@ module LibSSH2
     # Authenticates using a username and password. This will return true
     # or false representing whether the authentication succeeding or not.
     #
-    # @return [TrueClass, FalseClass]
+    # @param [String] username Username to authentiate with.
+    # @param [String] password Associated password for the username.
+    # @return [Boolean]
     def auth_by_password(username, password)
       @session.userauth_password(username, password)
     end

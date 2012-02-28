@@ -1,6 +1,8 @@
 *.bundle
 *.gem
 .bundle
+.yardoc/
+doc/
 Gemfile.lock
 pkg/*
 ports/
