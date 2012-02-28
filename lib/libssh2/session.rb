@@ -88,8 +88,8 @@ module LibSSH2
 
       # Determine which direction to wait for...
       dir = @session.block_directions
-      readfd << @socket.fileno  if dir & Native::SESSION_BLOCK_INBOUND
-      writefd << @socket.fileno if dir & Native::SESSION_BLOCK_OUTBOUND
+      readfd <<  @socket if (dir & Native::SESSION_BLOCK_INBOUND)
+      writefd << @socket if (dir & Native::SESSION_BLOCK_OUTBOUND)
 
       # Select on the file descriptors
       IO.select(readfd, writefd, nil, 10)
