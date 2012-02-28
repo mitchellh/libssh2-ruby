@@ -34,7 +34,10 @@ it friendly and intuitive:
 ```ruby
 require "libssh2"
 
-# COMING SOON!
+# This API is not yet complete. More coming soon!
+
+session = LibSSH2::Session.new("127.0.0.1", "2222")
+session.auth_by_password("username", "password")
 ```
 
 However, if you require more fine-grained control, I don't want the
