@@ -19,9 +19,14 @@
         rb_raise(rb_eArgError, "session must be a native session type");\
 } while (0)
 
+/*
+ * Macro that handles generic libssh2 return values as we normally
+ * do throughout the library: return true for success, and raise an
+ * exception for any errors.
+ * */
 #define HANDLE_LIBSSH2_RESULT(value) do{\
-    if (value == 0 || value == LIBSSH2_ERROR_EAGAIN)\
-        return INT2FIX(value);\
+    if (value == 0)\
+        return Qtrue;\
     rb_exc_raise(libssh2_ruby_wrap_error(value));\
     return Qnil;\
 } while (0)
