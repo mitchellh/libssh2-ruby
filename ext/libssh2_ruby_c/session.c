@@ -94,6 +94,20 @@ initialize(VALUE self) {
 
 /*
  * call-seq:
+ *     session.block_directions
+ *
+ * Returns an int that determines the direction to wait on the socket
+ * in the case of an EAGAIN. This will be a binary mask that can be
+ * checked with `Native::SESSION_BLOCK_INBOUND` and
+ * `Native::SESSION_BLOCK_OUTBOUND`.
+ * */
+static VALUE
+block_directions(VALUE self) {
+    return INT2FIX(libssh2_session_block_directions(get_session(self)));
+}
+
+/*
+ * call-seq:
  *     session.handshake(socket.fileno) -> int
  *
  * Initiates the handshake sequence for this session. You must
@@ -190,6 +204,7 @@ void init_libssh2_session() {
     VALUE cSession = rb_cLibSSH2_Native_Session;
     rb_define_alloc_func(cSession, allocate);
     rb_define_method(cSession, "initialize", initialize, 0);
+    rb_define_method(cSession, "block_directions", block_directions, 0);
     rb_define_method(cSession, "handshake", handshake, 1);
     rb_define_method(cSession, "set_blocking", set_blocking, 1);
     rb_define_method(cSession, "userauth_authenticated", userauth_authenticated, 0);

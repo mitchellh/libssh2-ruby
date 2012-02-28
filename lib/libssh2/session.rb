@@ -42,5 +42,13 @@ module LibSSH2
     def auth_by_password(username, password)
       @session.userauth_password(username, password)
     end
+
+    protected
+
+    # If an ERROR_EGAIN error is raised by libssh2 then this should be called
+    # to wait for the socket to be ready to use again.
+    def waitsocket(socket)
+
+    end
   end
 end
