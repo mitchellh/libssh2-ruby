@@ -18,7 +18,7 @@ module LibSSH2
 
       # Create the underlying LibSSH2 structures
       @session = Native.session_init
-      @session.set_blocking(true)
+      @session.set_blocking(false)
       blocking_call { @session.handshake(@socket.fileno) }
     end
 
