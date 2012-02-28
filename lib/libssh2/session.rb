@@ -43,6 +43,25 @@ module LibSSH2
       blocking_call { @session.userauth_password(username, password) }
     end
 
+    # Authenticates using public key authentication. This will return true if
+    # authentication was successful or throw an exception if it wasn't. The reason
+    # an exception is thrown instead of a basic "false" is becuse there can be
+    # many reasons why authentication fails, and exceptions allow us to be more specific
+    # about what went wrong.
+    #
+    # @param [String] username Username to authenticate as.
+    # @param [String] pubkey_path Path to the public key. This must be fully expanded.
+    # @param [String] privatekey_path Path to the private key. This must be
+    #   fully expanded.
+    # @param [optional, password] Password for the private key.
+    # @return True
+    def auth_by_publickey_fromfile(username, pubkey_path, privatekey_path, password=nil)
+      blocking_call do
+        @session.userauth_publickey_fromfile(
+          username, pubkey_path, privatekey_path, password)
+      end
+    end
+
     protected
 
     # Performs the given block until it doesn't raise ERROR_EAGAIN. ERROR_EAGAIN
