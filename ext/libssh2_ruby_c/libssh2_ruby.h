@@ -28,7 +28,7 @@
 
 extern VALUE rb_mLibSSH2;
 extern VALUE rb_mLibSSH2_Native;
-extern VALUE rb_eLibSSH2_Native_Error;
+extern VALUE rb_mLibSSH2_Native_Error;
 extern VALUE rb_cLibSSH2_Native_Channel;
 extern VALUE rb_cLibSSH2_Native_Session;
 
