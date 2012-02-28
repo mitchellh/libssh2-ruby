@@ -1,3 +1,4 @@
+require "libssh2/error"
 require "libssh2/native/error_codes"
 
 module LibSSH2
@@ -11,7 +12,7 @@ module LibSSH2
 
       # The generic error that is the superclass for all the more specific
       # errors that libssh2 might throw.
-      class Generic < StandardError
+      class Generic < LibSSH2::Error
         # The numeric error code for an instance.
         attr_reader :error_code
 

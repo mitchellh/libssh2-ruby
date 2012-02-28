@@ -6,4 +6,5 @@ require "libssh2/native"
 require "libssh2/native/error"
 
 # The pretty Ruby API
+require "libssh2/error"
 require "libssh2/session"
