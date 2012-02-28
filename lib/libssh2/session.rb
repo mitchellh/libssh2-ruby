@@ -19,7 +19,7 @@ module LibSSH2
       # Create the underlying LibSSH2 structures
       @session = Native.session_init
       @session.set_blocking(true)
-      @session.handshake(@socket.fileno)
+      blocking_call { @session.handshake(@socket.fileno) }
     end
 
     # Returns a boolean denoting whether this session has been authenticated
@@ -40,15 +40,40 @@ module LibSSH2
     # @param [String] password Associated password for the username.
     # @return True
     def auth_by_password(username, password)
-      @session.userauth_password(username, password)
+      blocking_call { @session.userauth_password(username, password) }
     end
 
     protected
 
+    # Performs the given block until it doesn't raise ERROR_EAGAIN. ERROR_EAGAIN
+    # is raised by libssh2 when a call would black and the session is non-blocking.
+    # This method forces the non-blocking calls to block until they complete.
+    #
+    # @yield [] Called until ERROR_EAGAIN is not raised, returns the value.
+    # @return [Object] Returns the value the block returns.
+    def blocking_call
+      while true
+        begin
+          return yield
+        rescue Native::Error::ERROR_EAGAIN
+          waitsocket
+        end
+      end
+    end
+
     # If an ERROR_EGAIN error is raised by libssh2 then this should be called
     # to wait for the socket to be ready to use again.
-    def waitsocket(socket)
+    def waitsocket
+      readfd  = []
+      writefd = []
 
+      # Determine which direction to wait for...
+      dir = @session.block_directions
+      readfd << @socket.fileno  if dir & Native::SESSION_BLOCK_INBOUND
+      writefd << @socket.fileno if dir & Native::SESSION_BLOCK_OUTBOUND
+
+      # Select on the file descriptors
+      IO.select(readfd, writefd, nil, 10)
     end
   end
 end
