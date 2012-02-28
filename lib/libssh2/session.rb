@@ -1,5 +1,8 @@
 require "socket"
 
+require "libssh2/channel"
+require "libssh2/error"
+
 module LibSSH2
   # Represents a session, or a connection to a remote host for SSH.
   class Session
@@ -60,6 +63,19 @@ module LibSSH2
         @session.userauth_publickey_fromfile(
           username, pubkey_path, privatekey_path, password)
       end
+    end
+
+    # Opens a new channel and returns a {Channel} object.
+    #
+    # @return [Channel]
+    def open_channel
+      # We need to check if we're authenticated here otherwise the next call
+      # will actually block forever.
+      raise AuthenticationRequired if !authenticated?
+
+      # Open a new channel and return it
+      native_channel = Native::Channel.new(@session)
+      Channel.new(native_channel, @socket)
     end
 
     protected
