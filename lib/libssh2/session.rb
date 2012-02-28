@@ -30,12 +30,15 @@ module LibSSH2
       @session.userauth_authenticated
     end
 
-    # Authenticates using a username and password. This will return true
-    # or false representing whether the authentication succeeding or not.
+    # Authenticates using a username and password. This will return true if
+    # it succeeds or throw an exception if it doesn't. The reason an exception
+    # is thrown instead of a basic "false" is because there can be many reasons
+    # why authentication fails, and exceptions allow us to be more specific about
+    # what went wrong.
     #
     # @param [String] username Username to authentiate with.
     # @param [String] password Associated password for the username.
-    # @return [Boolean]
+    # @return True
     def auth_by_password(username, password)
       @session.userauth_password(username, password)
     end
