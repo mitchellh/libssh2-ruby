@@ -107,38 +107,44 @@ exec(VALUE self, VALUE command) {
 
 /*
  * call-seq:
- *     channel.read -> [string, result_code]
+ *     channel.read -> string
  *
- * Reads from the channel. This will return the data it got as a string,
- * along with the result code.
+ * Reads from the channel. This will return the data as a string. This will
+ * raise an ERROR_EAGAIN error if the socket would block. This will return
+ * `nil` when an EOF is reached.
  *
  * */
 static VALUE
-read(VALUE self) {
+read(VALUE self, VALUE buffer_size) {
     int result;
-    char buffer[0x4000];
-    VALUE data = rb_str_buf_new(0x2000);
+    char *buffer;
+    long length;
     LIBSSH2_CHANNEL *channel = get_channel(self);
 
-    do {
-        // Read from the channel
-        result = libssh2_channel_read(channel, buffer, sizeof(buffer));
+    // Verify parameters
+    length = NUM2LONG(buffer_size);
+    if (length <= 0) {
+        rb_raise(rb_eArgError, "buffer size must be greater than 0");
+        return Qnil;
+    }
 
-        if (result > 0) {
-            // Read succeeded, append to our string with the same number
-            // of bytes that libssh2 said that we read.
-            data = rb_str_buf_cat(data, buffer, result);
-        } else if (result < 0) {
-            // If we got EAGAIN, then its not a problem, we just re-loop.
-            // Otherwise, we throw an error!
-            if (result != LIBSSH2_ERROR_EAGAIN) {
-                rb_exc_raise(libssh2_ruby_wrap_error(result));
-                return Qnil;
-            }
-        }
-    } while(result > 0);
+    // Create our buffer
+    buffer = (char *)malloc(length);
 
-    return rb_ary_new3(2, data, INT2FIX(result));
+    // Read from the channel
+    result = libssh2_channel_read(channel, buffer, sizeof(buffer));
+
+    if (result > 0) {
+        // Read succeeded. Create a string with the correct number of
+        // bytes and return it.
+        return rb_str_new(buffer, result);
+    } else if (result == 0) {
+        // No bytes read, this could signal EOF or just that no bytes
+        // were ready.
+        return Qnil;
+    } else {
+        HANDLE_LIBSSH2_RESULT(result);
+    }
 }
 
 void init_libssh2_channel() {
@@ -146,5 +152,5 @@ void init_libssh2_channel() {
     rb_define_alloc_func(cChannel, allocate);
     rb_define_method(cChannel, "initialize", initialize, 1);
     rb_define_method(cChannel, "exec", exec, 1);
-    rb_define_method(cChannel, "read", read, 0);
+    rb_define_method(cChannel, "read", read, 1);
 }
