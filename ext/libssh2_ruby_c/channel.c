@@ -107,6 +107,17 @@ exec(VALUE self, VALUE command) {
 
 /*
  * call-seq:
+ *     channel.eof -> true|false
+ *
+ * Returns a boolean of whether an EOF packet was sent by the remote end.
+ * */
+static VALUE
+eof(VALUE self) {
+    return libssh2_channel_eof(get_channel(self)) == 1 ? Qtrue : Qfalse;
+}
+
+/*
+ * call-seq:
  *     channel.read -> string
  *
  * Reads from the channel. This will return the data as a string. This will
@@ -152,5 +163,6 @@ void init_libssh2_channel() {
     rb_define_alloc_func(cChannel, allocate);
     rb_define_method(cChannel, "initialize", initialize, 1);
     rb_define_method(cChannel, "exec", exec, 1);
+    rb_define_method(cChannel, "eof", eof, 0);
     rb_define_method(cChannel, "read", read, 1);
 }

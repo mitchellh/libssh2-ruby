@@ -26,51 +26,20 @@ module LibSSH2
       @session = session
     end
 
-    # Executes the given command line and returns a {Process} object.
-    # Note that this command executes asynchronously.
+    # Executes the given command as if on the command line. This will
+    # return immediately. Call `wait` on the channel to wait for the
+    # channel to complete.
     #
     # @return [Process]
     def execute(command)
-      # Create the process, which will be the `exec` method
-      process = Process.new(self) do
-        @session.blocking_call do
-          @native_channel.exec(command)
-        end
+      @session.blocking_call do
+        @native_channel.exec(command)
       end
-
-      # Start the process
-      process.start!
-
-      # Return it
-      process
-    end
-  end
-
-  # Represents a process that on a channel. This will execute a
-  # process then read the output data from it and store it for future
-  # retrieval.
-  class Process
-    READ_CHUNK_SIZE = 4096
-
-    # This is the data from the standard IO substream (stream ID 0)
-    # which typically contains stdout.
-    #
-    # @return [String]
-    attr_reader :data
-
-    # Setup a process.
-    #
-    # @yield [] This should execute the process on the channel. Directly
-    #   after yielding, the process will automatically gather any resulting
-    #   information.
-    def initialize(channel, &block)
-      @channel = channel
-      @block   = block
     end
 
-    def start!
-      # Execute the process
-      @block.call
+    # This blocks until the channel completes.
+    def wait
+      p @native_channel.eof
     end
   end
 end
