@@ -26,6 +26,7 @@ module LibSSH2
       @session        = session
       @closed         = false
       @exit_status    = nil
+      @on_data        = nil
     end
 
     # Sends a CLOSE request to the remote end, which signals that we will
@@ -62,12 +63,19 @@ module LibSSH2
       end
     end
 
+    # Specify a callback that is called when data is received on this
+    # channel.
+    def on_data(&callback)
+      @on_data = callback
+    end
+
     # This blocks until the channel completes. This will implicitly
     # call {#close} as well, since the channel can only complete if it
     # is closed.
     def wait
       while !@native_channel.eof
-        p @session.blocking_call { @native_channel.read(1000) }
+        data = @session.blocking_call { @native_channel.read(1000) }
+        @on_data.call(data) if data && @on_data
       end
 
       # Close our end, we won't be sending any more requests.
