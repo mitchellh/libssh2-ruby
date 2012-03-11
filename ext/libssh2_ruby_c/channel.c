@@ -118,6 +118,17 @@ eof(VALUE self) {
 
 /*
  * call-seq:
+ *     channel.get_exit_status -> int
+ *
+ * Returns the exit status of the program.
+ * */
+static VALUE
+get_exit_status(VALUE self) {
+    return INT2FIX(libssh2_channel_get_exit_status(get_channel(self)));
+}
+
+/*
+ * call-seq:
  *     channel.read -> string
  *
  * Reads from the channel. This will return the data as a string. This will
@@ -164,5 +175,6 @@ void init_libssh2_channel() {
     rb_define_method(cChannel, "initialize", initialize, 1);
     rb_define_method(cChannel, "exec", exec, 1);
     rb_define_method(cChannel, "eof", eof, 0);
+    rb_define_method(cChannel, "get_exit_status", get_exit_status, 0);
     rb_define_method(cChannel, "read", read, 1);
 }
