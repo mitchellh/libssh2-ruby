@@ -20,10 +20,35 @@ module LibSSH2
     # use helpers such as {Session#open_channel}.
     #
     # @param [Native::Channel] native_channel Native channel structure.
-    # @param [Socket] socket Open socket to communicate with.
+    # @param [Session] session Session that this channel belongs to.
     def initialize(native_channel, session)
       @native_channel = native_channel
-      @session = session
+      @session        = session
+      @closed         = false
+      @exit_status    = nil
+    end
+
+    # Sends a CLOSE request to the remote end, which signals that we will
+    # not send any more data. Note that the remote end may continue sending
+    # data until it sends its own respective CLOSE request.
+    def close
+      # Only one CLOSE request may be sent. Guard your close calls by
+      # checking the value of {#closed?}
+      raise DoubleCloseError if @closed
+
+      # Send the CLOSE
+      @session.blocking_call { @native_channel.close }
+
+      # Mark that we closed
+      @closed = true
+    end
+
+    # Returns a boolean of whether we closed or not. Note that this is
+    # not an indicator of the remote end has closed the connection.
+    #
+    # @return [Boolean]
+    def closed?
+      @closed
     end
 
     # Executes the given command as if on the command line. This will
@@ -37,13 +62,22 @@ module LibSSH2
       end
     end
 
-    # This blocks until the channel completes.
+    # This blocks until the channel completes. This will implicitly
+    # call {#close} as well, since the channel can only complete if it
+    # is closed.
     def wait
-      p @session.blocking_call { @native_channel.read(1000) }
-      p @session.blocking_call { @native_channel.close }
-      p @session.blocking_call { @native_channel.wait_closed }
-      p @native_channel.eof
-      p @native_channel.get_exit_status
+      while !@native_channel.eof
+        p @session.blocking_call { @native_channel.read(1000) }
+      end
+
+      # Close our end, we won't be sending any more requests.
+      close if !closed?
+
+      # Wait for the remote end to close
+      @session.blocking_call { @native_channel.wait_closed }
+
+      # Grab our exit status
+      @exit_status = @native_channel.get_exit_status
     end
   end
 end
