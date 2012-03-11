@@ -1,6 +1,9 @@
 #include <libssh2_ruby.h>
 
-/*
+// Prototypes
+static VALUE read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size);
+
+ /*
  * Helpers to return the LIBSSH2_CHANNEL for the given instance.
  * */
 static inline LIBSSH2_CHANNEL *
@@ -151,23 +154,47 @@ get_exit_status(VALUE self) {
  * */
 static VALUE
 read(VALUE self, VALUE buffer_size) {
+    return read_ex(self, INT2NUM(0), buffer_size);
+}
+
+/*
+ * call-seq:
+ *     channel.read_ex(0, 1000) -> string
+ *
+ * Reads from the channel on the specified stream. This will return the data
+ * as a string. This will raise an ERROR_EAGAIN if the socket would block. This
+ * will return `nil` when an EOF is reached.
+ * */
+static VALUE
+read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size) {
     int result;
     char *buffer;
-    long length;
+    int stream_id;
+    long buffer_size;
     LIBSSH2_CHANNEL *channel = get_channel(self);
 
+    // Check types
+    rb_check_type(rb_stream_id, T_FIXNUM);
+    rb_check_type(rb_buffer_size, T_FIXNUM);
+
     // Verify parameters
-    length = NUM2LONG(buffer_size);
-    if (length <= 0) {
+    stream_id = NUM2INT(rb_stream_id);
+    if (stream_id < 0) {
+        rb_raise(rb_eArgError, "stream ID must be greater than or equal to 0");
+        return Qnil;
+    }
+
+    buffer_size = NUM2LONG(rb_buffer_size);
+    if (buffer_size <= 0) {
         rb_raise(rb_eArgError, "buffer size must be greater than 0");
         return Qnil;
     }
 
     // Create our buffer
-    buffer = (char *)malloc(length);
+    buffer = (char *)malloc(buffer_size);
 
     // Read from the channel
-    result = libssh2_channel_read(channel, buffer, sizeof(buffer));
+    result = libssh2_channel_read_ex(channel, stream_id, buffer, sizeof(buffer));
 
     if (result > 0) {
         // Read succeeded. Create a string with the correct number of
@@ -181,6 +208,7 @@ read(VALUE self, VALUE buffer_size) {
         HANDLE_LIBSSH2_RESULT(result);
     }
 }
+
 
 /*
  * call-seq:
@@ -204,5 +232,6 @@ void init_libssh2_channel() {
     rb_define_method(cChannel, "eof", eof, 0);
     rb_define_method(cChannel, "get_exit_status", get_exit_status, 0);
     rb_define_method(cChannel, "read", read, 1);
+    rb_define_method(cChannel, "read_ex", read_ex, 2);
     rb_define_method(cChannel, "wait_closed", wait_closed, 0);
 }
