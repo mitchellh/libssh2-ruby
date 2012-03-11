@@ -90,6 +90,19 @@ initialize(VALUE self, VALUE rb_session) {
 
 /*
  * call-seq:
+ *     channel.close -> true
+ *
+ * Sends a CLOSE command to the remote side. This typically has the effect
+ * of the remote end stdin is closed.
+ * */
+static VALUE
+close(VALUE self) {
+    int result = libssh2_channel_close(get_channel(self));
+    HANDLE_LIBSSH2_RESULT(result);
+}
+
+/*
+ * call-seq:
  *     channel.exec("echo foo") -> Qtrue
  *
  * Executes a command line method on the channel.
@@ -169,12 +182,27 @@ read(VALUE self, VALUE buffer_size) {
     }
 }
 
+/*
+ * call-seq:
+ *     channel.wait_closed -> true
+ *
+ * This blocks until the channel receives a CLOSE message from the remote
+ * side. This can raise exceptions.
+ * */
+static VALUE
+wait_closed(VALUE self) {
+    int result = libssh2_channel_wait_closed(get_channel(self));
+    HANDLE_LIBSSH2_RESULT(result);
+}
+
 void init_libssh2_channel() {
     VALUE cChannel = rb_cLibSSH2_Native_Channel;
     rb_define_alloc_func(cChannel, allocate);
     rb_define_method(cChannel, "initialize", initialize, 1);
+    rb_define_method(cChannel, "close", close, 0);
     rb_define_method(cChannel, "exec", exec, 1);
     rb_define_method(cChannel, "eof", eof, 0);
     rb_define_method(cChannel, "get_exit_status", get_exit_status, 0);
     rb_define_method(cChannel, "read", read, 1);
+    rb_define_method(cChannel, "wait_closed", wait_closed, 0);
 }

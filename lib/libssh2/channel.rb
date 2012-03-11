@@ -39,7 +39,11 @@ module LibSSH2
 
     # This blocks until the channel completes.
     def wait
+      p @session.blocking_call { @native_channel.read(1000) }
+      p @session.blocking_call { @native_channel.close }
+      p @session.blocking_call { @native_channel.wait_closed }
       p @native_channel.eof
+      p @native_channel.get_exit_status
     end
   end
 end

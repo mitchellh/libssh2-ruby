@@ -47,8 +47,11 @@ module LibSSH2
       Native::Channel.new(session)
     end
 
+    proxy_method :channel, :close, Native::Channel
     proxy_method :channel, :exec, Native::Channel
     proxy_method :channel, :eof, Native::Channel
+    proxy_method :channel, :get_exit_status, Native::Channel
     proxy_method :channel, :read, Native::Channel
+    proxy_method :channel, :wait_closed, Native::Channel
   end
 end
