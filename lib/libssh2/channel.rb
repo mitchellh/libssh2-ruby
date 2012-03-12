@@ -73,19 +73,27 @@ module LibSSH2
 
     # Specify a callback that is called when data is received on this
     # channel.
+    #
+    # @yield [data] Called every time data is received, with the data.
     def on_data(&callback)
       @stream_callbacks[STREAM_DATA] = callback
     end
 
     # Specify a callback that is called when extended data (typically
     # stderr) is received on this channel.
+    #
+    # @yield [data] Called every time data is received, with the data.
     def on_extended_data(&callback)
       @stream_callbacks[STREAM_EXTENDED_DATA] = callback
     end
 
-    # This blocks until the channel completes. This will implicitly
-    # call {#close} as well, since the channel can only complete if it
-    # is closed.
+    # This blocks until the channel completes, and also initiates the
+    # event loop so that data callbacks will be called when data is
+    # received. Prior to this, data will be received and buffered until
+    # this is called. This ensures that callbacks are always called on
+    # the thread that `wait` is called on.
+    #
+    # This method will also implicitly call {#close}.
     def wait
       # This is pretty ghetto but it works for now. In the future
       # we'll want to put this somewhere else.
@@ -103,6 +111,8 @@ module LibSSH2
       # Grab our exit status
       @exit_status = @native_channel.get_exit_status
     end
+
+    protected
 
     # This will read from the given stream ID and call the proper
     # callbacks if they exist.
