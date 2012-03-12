@@ -39,15 +39,11 @@ require "libssh2"
 
 session = LibSSH2::Session.new("127.0.0.1", "2222")
 session.auth_by_password("username", "password")
-channel = session.open_channel
-channel.exec "echo foo"
-channel.on_data do |data|
-  puts "stdout: #{data}"
+session.execute "echo foo" do |channel|
+  channel.on_data do |data|
+    puts "stdout: #{data}"
+  end
 end
-
-# Wait for the channel to complete since it is executed
-# asynchronously.
-channel.wait
 ```
 
 However, if you require more fine-grained control, I don't want the
