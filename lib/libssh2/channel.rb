@@ -3,6 +3,14 @@ module LibSSH2
   # done via SSH is done on one or more channels. The actual communication
   # is then multiplexed onto a single connection.
   class Channel
+    # The stream ID for the main data channel. This is always 0 as defined
+    # by RFC 4254
+    STREAM_DATA = 0
+
+    # The stream ID for the extended data channel (typically used for stderr).
+    # This is always 1 as defined by RFC 4254.
+    STREAM_EXTENDED_DATA = 1
+
     # This gives you access to the native underlying channel object.
     # Use this **at your own risk**. If you start calling native methods,
     # then the safety of the rest of this class is no longer guaranteed.
@@ -26,7 +34,7 @@ module LibSSH2
       @session        = session
       @closed         = false
       @exit_status    = nil
-      @on_data        = nil
+      @stream_callbacks = {}
     end
 
     # Sends a CLOSE request to the remote end, which signals that we will
@@ -66,16 +74,18 @@ module LibSSH2
     # Specify a callback that is called when data is received on this
     # channel.
     def on_data(&callback)
-      @on_data = callback
+      @stream_callbacks[STREAM_DATA] = callback
     end
 
     # This blocks until the channel completes. This will implicitly
     # call {#close} as well, since the channel can only complete if it
     # is closed.
     def wait
+      # This is pretty ghetto but it works for now. In the future
+      # we'll want to put this somewhere else.
       while !@native_channel.eof
-        data = @session.blocking_call { @native_channel.read(1000) }
-        @on_data.call(data) if data && @on_data
+        @session.blocking_call { read_stream(STREAM_DATA) }
+        @session.blocking_call { read_stream(STREAM_EXTENDED_DATA) }
       end
 
       # Close our end, we won't be sending any more requests.
@@ -86,6 +96,31 @@ module LibSSH2
 
       # Grab our exit status
       @exit_status = @native_channel.get_exit_status
+    end
+
+    # This will read from the given stream ID and call the proper
+    # callbacks if they exist.
+    #
+    # @param [Fixnum] stream_id The stream to read.
+    def read_stream(stream_id)
+      data_cb = @stream_callbacks[stream_id]
+
+      while true
+        data = nil
+        begin
+          data = @native_channel.read_ex(stream_id, 1000)
+        rescue Native::Error::ERROR_EAGAIN
+          # When we get an EAGAIN then we're done. Return.
+          return
+        end
+
+        # If we got nil as a return value then there is no more data
+        # to read.
+        return if data.nil?
+
+        # Callback if we have data to send and we have a callback
+        data_cb.call(data) if data_cb
+      end
     end
   end
 end
