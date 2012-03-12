@@ -5,7 +5,8 @@ is a modern C-library implementing the SSH2 protocol and made by the same
 people who made [cURL](http://curl.haxx.se/).
 
 **Project status:** Alpha. Much of the library is still not yet done,
-and proper cross-platform testing has not been done.
+and proper cross-platform testing has not been done. However, the library
+itself is functional, and everything in this README should work.
 
 ## Motivation
 
@@ -80,3 +81,23 @@ data, _ = channel_read(channel)
 # Outputs "hello\n"
 puts data
 ```
+
+## Are there any downsides? When should I use Net::SSH?
+
+There are certainly some downsides. I've enumerated them below:
+
+* **libssh2-ruby requires libssh2**. This library requires [libssh2](http://www.libssh2.org/)
+  to be installed. On most platforms this is very easy but it is still another
+  step, whereas Net::SSH is a pure Ruby implementation of the SSH protocol.
+* **libssh2 can't do much for stdout/stderr ordering.** Due to the way the libssh2
+  API is, the ordering of stdout/stderr is usually off. In practice this may
+  or may not matter for you, and I'm working with the libssh2 team to try
+  to address this issue in some way.
+* **libssh2 doesn't have access to every stream/request.** If you require advanced
+  SSH usage, you can manually read from specific stream IDs, but the libssh2
+  evented interface won't work with custom stream IDs or request types. For the
+  99% case this is not an issue, but I did want to note that this problem
+  exists.
+
+That being said, libssh2 is wonderfully stable and fast, and if you're not
+negatively impacted by the above issues, then you should use it.
