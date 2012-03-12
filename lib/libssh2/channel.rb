@@ -77,6 +77,12 @@ module LibSSH2
       @stream_callbacks[STREAM_DATA] = callback
     end
 
+    # Specify a callback that is called when extended data (typically
+    # stderr) is received on this channel.
+    def on_extended_data(&callback)
+      @stream_callbacks[STREAM_EXTENDED_DATA] = callback
+    end
+
     # This blocks until the channel completes. This will implicitly
     # call {#close} as well, since the channel can only complete if it
     # is closed.
