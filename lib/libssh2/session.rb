@@ -92,8 +92,25 @@ module LibSSH2
       end
     end
 
+    # Convenience method to execute a command with this session. This will
+    # open a new channel and yield the channel to a block so that data listeners
+    # can be attached to it, if needed. The channel is also returned.
+    #
+    # @param [String] command Command to execute
+    # @yield [channel] Called with the opened channel prior to executing so
+    #   that data listeners can be attached.
+    # @return [Channel]
+    def execute(command, &block)
+      channel = open_channel(&block)
+      channel.execute(command)
+      channel.wait
+      channel
+    end
+
      # Opens a new channel and returns a {Channel} object.
     #
+    # @yield [channel] Optional, if a block is given, the resulting channel is
+    #   yielded to it prior to returning.
     # @return [Channel]
     def open_channel
       # We need to check if we're authenticated here otherwise the next call
@@ -102,7 +119,9 @@ module LibSSH2
 
       # Open a new channel and return it
       native_channel = Native::Channel.new(@native_session)
-      Channel.new(native_channel, self)
+      result = Channel.new(native_channel, self)
+      yield result if block_given?
+      result
     end
 
     # If an ERROR_EGAIN error is raised by libssh2 then this should be called
