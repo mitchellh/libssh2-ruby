@@ -3,4 +3,5 @@ acceptance:
   port: 2222
   user: vagrant
   password: vagrant
-
+  public_key_path: /path/to/key.pub
+  private_key_path: /path/to/key

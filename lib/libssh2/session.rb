@@ -69,6 +69,11 @@ module LibSSH2
     # @param [optional, password] Password for the private key.
     # @return True
     def auth_by_publickey_fromfile(username, pubkey_path, privatekey_path, password=nil)
+      # The C API requires that the password be a string, but it is
+      # safer to default arguments to `nil`, so we have to change it
+      # to an empty string here if not set.
+      password ||= ""
+
       blocking_call do
         @native_session.userauth_publickey_fromfile(
           username, pubkey_path, privatekey_path, password)
