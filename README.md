@@ -98,7 +98,36 @@ There are certainly some downsides. I've enumerated them below:
 That being said, libssh2 is wonderfully stable and fast, and if you're not
 negatively impacted by the above issues, then you should use it.
 
-## Running the Tests
+## Contributing
+
+### Basic Steps
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+### Using the Library from Source
+
+Since this library is a C extension based library, it can be tricky to work
+on and test. It is annoying to have to build the project every time to test
+some new code. Luckily, you don't have to! Just follow the steps below:
+
+1. `rake compile` anytime you need to build the C extension. This should be
+   done the first time you clone the project as well as any time you change
+   any C code. On Linux, this will also build `libssh2` for you!
+2. Make a test Ruby file that uses `libssh2` as if it were actually installed.
+   For example, just `require "libssh2"` like normal.
+3. Execute your test file using `bundle exec ruby test.rb`. This will use the
+   source version instead of any gem installed version!
+
+You can use the above steps to iterate on the code and verify things are
+working okay while you do. However, prior to committing any new functionality,
+you should run the acceptance tests and potentially add to it, which is
+covered below.
+
+### Running the Tests
 
 This library has an acceptance test suite to verify everything is working.
 Since it is an acceptance test library, it will make actually SSH connections
@@ -110,10 +139,3 @@ Once the `config.yml` is in place, run the tests:
 
     $ bundle exec rake
 
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
