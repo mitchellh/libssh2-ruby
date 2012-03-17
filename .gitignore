@@ -7,4 +7,5 @@ Gemfile.lock
 pkg/*
 ports/
 test.rb
+spec/config.yml
 tmp/

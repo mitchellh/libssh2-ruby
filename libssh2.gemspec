@@ -19,9 +19,10 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  # specify any dependencies here; for example:
   s.add_development_dependency "mini_portile", "~> 0.2.2"
   s.add_development_dependency "rake-compiler", "~> 0.8.0"
+  s.add_development_dependency "rspec-core", "~> 2.8.0"
+  s.add_development_dependency "rspec-expectations", "~> 2.8.0"
+  s.add_development_dependency "rspec-mocks", "~> 2.8.0"
   s.add_development_dependency "yard", "~> 0.7.5"
-  # s.add_runtime_dependency "rest-client"
 end

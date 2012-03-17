@@ -1,0 +1,6 @@
+acceptance:
+  host: 127.0.0.1
+  port: 2222
+  user: vagrant
+  password: vagrant
+
