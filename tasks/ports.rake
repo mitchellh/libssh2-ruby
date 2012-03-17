@@ -1,4 +1,5 @@
 require "mini_portile"
+require "rake/extensioncompiler"
 
 libssh2_version = "1.4.0"
 $recipes = {}
@@ -20,4 +21,16 @@ namespace :ports do
 
     recipe.activate
   end
+end
+
+# We need to patch the cross compilation task to compile our
+# ports prior to building.
+task :cross do
+  host = ENV.fetch("HOST", Rake::ExtensionCompiler.mingw_host)
+  $recipes.each do |_, recipe|
+    recipe.host = host
+  end
+
+  # Make sure the port is compiled before cross compilation
+  Rake::Task["compile"].prerequisites.unshift "ports:libssh2"
 end
