@@ -2,9 +2,14 @@ require "mini_portile"
 require "rake/extensioncompiler"
 
 libssh2_version = "1.4.0"
+openssl_version = "1.0.1"
+
 $recipes = {}
 $recipes[:libssh2] = MiniPortile.new("libssh2", libssh2_version)
+$recipes[:openssl] = MiniPortile.new("openssl", openssl_version)
+
 $recipes[:libssh2].files << "http://www.libssh2.org/download/libssh2-#{libssh2_version}.tar.gz"
+$recipes[:openssl].files << "http://www.openssl.org/source/openssl-#{openssl_version}.tar.gz"
 
 namespace :ports do
   directory "ports"
@@ -22,6 +27,41 @@ namespace :ports do
     recipe.activate
   end
 end
+
+namespace :cross do
+  # This cross compiles OpenSSL for Windows. This is ONLY called by `cross`
+  # and should not be invoked manually.
+  task :openssl do
+    recipe = $recipes[:openssl]
+
+    class << recipe
+      def configure
+        cmd = ["perl"]
+        cmd << "Configure"
+        cmd << "mingw"
+        cmd << "shared"
+        cmd << configure_prefix
+
+        execute("configure", cmd.join(" "))
+      end
+
+      def configured?
+        false
+      end
+    end
+
+    checkpoint = "ports/.#{recipe.name}.#{recipe.version}.#{recipe.host}.timestamp"
+    if !File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
+  end
+end
+
+# Before cross compiling, cross compile OpenSSL
+task :cross => "cross:openssl"
 
 # We need to patch the cross compilation task to compile our
 # ports prior to building.
