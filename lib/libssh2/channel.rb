@@ -133,10 +133,7 @@ module LibSSH2
 
       # Grab our exit status if we care about it
       exit_status_cb = @stream_callbacks[:exit_status]
-      if exit_status_cb
-        exit_status = @native_channel.get_exit_status
-        exit_status_cb.call(exit_status) if exit_status_cb
-      end
+      exit_status_cb.call(@native_channel.get_exit_status) if exit_status_cb
     end
 
     protected
