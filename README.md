@@ -97,3 +97,23 @@ There are certainly some downsides. I've enumerated them below:
 
 That being said, libssh2 is wonderfully stable and fast, and if you're not
 negatively impacted by the above issues, then you should use it.
+
+## Running the Tests
+
+This library has an acceptance test suite to verify everything is working.
+Since it is an acceptance test library, it will make actually SSH connections
+to verify things are working properly. Running the suite is easy. First,
+create a `config.yml` based on the `config.yml.example` file in the `spec`
+directory. This must be configured to point to a real server that can an
+SSH connection can be established to with both password and key based auth.
+Once the `config.yml` is in place, run the tests:
+
+    $ bundle exec rake
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
