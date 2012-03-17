@@ -20,8 +20,10 @@ module LibSSH2
     # @param [String] host Hostname or IP of the remote host.
     # @param [Fixnum] port Port on the host to connect to.
     def initialize(host, port)
-      @host = host
-      @port = port
+      # Initialize state
+      @host     = host
+      @port     = port
+      @channels = []
 
       # Connect to the remote host
       @socket  = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
@@ -107,7 +109,33 @@ module LibSSH2
       channel
     end
 
-     # Opens a new channel and returns a {Channel} object.
+    # Runs an event loop, kicking firing off any event listeners for channels.
+    # This blocks, and will force any events to fire on this thread. This will
+    # loop while the given block returns true. By default, if no block is given
+    # then this will loop while there are any active channels.
+    #
+    # @yield [] If this returns true, then the loop will continue. Return false \
+    #   to end the loop. This will be called periodically.
+    def loop(&block)
+      # This is the conditional that if it returns true, then the loop
+      # continues.
+      continue_conditional = block || Proc.new { !@channels.empty? }
+
+      Kernel.loop do
+        # Remove any channels that are closed
+        @channels.delete_if { |c| c.closed? }
+
+        # Read from the active channels
+        @channels.each do |channel|
+          channel.read
+        end
+
+        # Break if the conditional tells us to
+        break if !continue_conditional.call
+      end
+    end
+
+    # Opens a new channel and returns a {Channel} object.
     #
     # @yield [channel] Optional, if a block is given, the resulting channel is
     #   yielded to it prior to returning.
@@ -117,9 +145,13 @@ module LibSSH2
       # will actually block forever.
       raise AuthenticationRequired if !authenticated?
 
-      # Open a new channel and return it
-      native_channel = Native::Channel.new(@native_session)
-      result = Channel.new(native_channel, self)
+      # Open a new channel
+      native_channel      = Native::Channel.new(@native_session)
+      result              = Channel.new(native_channel, self)
+      @channels << result
+
+      # Yield if a block was given so some processing can be done, but
+      # return the channel.
       yield result if block_given?
       result
     end

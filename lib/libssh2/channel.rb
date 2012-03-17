@@ -87,6 +87,18 @@ module LibSSH2
       @stream_callbacks[STREAM_EXTENDED_DATA] = callback
     end
 
+    def read
+      # Return false if we have nothing else to read
+      return false if @native_channel.eof
+
+      # Attempt to read from stdout/stderr
+      @session.blocking_call { read_stream(STREAM_DATA) }
+      @session.blocking_call { read_stream(STREAM_EXTENDED_DATA) }
+
+      # Return true always
+      true
+    end
+
     # This blocks until the channel completes, and also initiates the
     # event loop so that data callbacks will be called when data is
     # received. Prior to this, data will be received and buffered until
@@ -95,12 +107,8 @@ module LibSSH2
     #
     # This method will also implicitly call {#close}.
     def wait
-      # This is pretty ghetto but it works for now. In the future
-      # we'll want to put this somewhere else.
-      while !@native_channel.eof
-        @session.blocking_call { read_stream(STREAM_DATA) }
-        @session.blocking_call { read_stream(STREAM_EXTENDED_DATA) }
-      end
+      # Read all the data
+      loop { break if !read }
 
       # Close our end, we won't be sending any more requests.
       close if !closed?
