@@ -33,7 +33,6 @@ module LibSSH2
       @native_channel = native_channel
       @session        = session
       @closed         = false
-      @exit_status    = nil
       @stream_callbacks = {}
     end
 
@@ -87,6 +86,15 @@ module LibSSH2
       @stream_callbacks[STREAM_EXTENDED_DATA] = callback
     end
 
+    # Specify a callback that is called when the exit status is
+    # received on this channel.
+    #
+    # @yield [exit_status] Called once when the exit status is received with
+    #   the exit status.
+    def on_exit_status(&callback)
+      @stream_callbacks[:exit_status] = callback
+    end
+
     # Attempts reading from specific streams on the channel. This will not
     # block if data is unavailable. This typically doesn't need to be
     # called publicly but can be if you'd like. If data is found, it will
@@ -123,8 +131,12 @@ module LibSSH2
       # Wait for the remote end to close
       @session.blocking_call { @native_channel.wait_closed }
 
-      # Grab our exit status
-      @exit_status = @native_channel.get_exit_status
+      # Grab our exit status if we care about it
+      exit_status_cb = @stream_callbacks[:exit_status]
+      if exit_status_cb
+        exit_status = @native_channel.get_exit_status
+        exit_status_cb.call(exit_status) if exit_status_cb
+      end
     end
 
     protected
