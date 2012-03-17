@@ -127,7 +127,7 @@ module LibSSH2
 
         # Read from the active channels
         @channels.each do |channel|
-          channel.read
+          channel.attempt_read
         end
 
         # Break if the conditional tells us to

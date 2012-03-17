@@ -87,7 +87,14 @@ module LibSSH2
       @stream_callbacks[STREAM_EXTENDED_DATA] = callback
     end
 
-    def read
+    # Attempts reading from specific streams on the channel. This will not
+    # block if data is unavailable. This typically doesn't need to be
+    # called publicly but can be if you'd like. If data is found, it will
+    # invoke the proper callback on the thread which calls this method.
+    #
+    # @return [Boolean] True if EOF is not seen, false if EOF is seen,
+    #   meaning no data is ever coming again.
+    def attempt_read
       # Return false if we have nothing else to read
       return false if @native_channel.eof
 
@@ -108,7 +115,7 @@ module LibSSH2
     # This method will also implicitly call {#close}.
     def wait
       # Read all the data
-      loop { break if !read }
+      loop { break if !attempt_read }
 
       # Close our end, we won't be sending any more requests.
       close if !closed?
