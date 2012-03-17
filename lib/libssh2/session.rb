@@ -163,6 +163,10 @@ module LibSSH2
 
     # If an ERROR_EGAIN error is raised by libssh2 then this should be called
     # to wait for the socket to be ready to use again.
+    #
+    # Note that this generally **never** needs to be called by the general
+    # public, but is provided as a convenience if you are using the native
+    # session object.
     def waitsocket
       readfd  = []
       writefd = []
