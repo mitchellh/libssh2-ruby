@@ -39,7 +39,9 @@ namespace :cross do
         cmd = ["perl"]
         cmd << "Configure"
         cmd << "mingw"
-        cmd << "shared"
+        cmd << "no-zlib"
+        cmd << "no-shared"
+        cmd << "--cross-compile-prefix=i686-w64-mingw32-"
         cmd << configure_prefix
 
         execute("configure", cmd.join(" "))
