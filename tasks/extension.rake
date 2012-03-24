@@ -5,5 +5,6 @@ require "rake/extensiontask"
 # This requires Bundler 1.1.0.
 gem_helper = Bundler::GemHelper.new(Dir.pwd)
 Rake::ExtensionTask.new("libssh2_ruby_c", gem_helper.gemspec) do |ext|
-  ext.cross_compile = true
+  ext.cross_compile  = true
+  ext.cross_platform = "i686-w64-mingw32"
 end
