@@ -62,9 +62,6 @@ namespace :cross do
   end
 end
 
-# Before cross compiling, cross compile OpenSSL
-task :cross => "cross:openssl"
-
 # We need to patch the cross compilation task to compile our
 # ports prior to building.
 task :cross do
@@ -74,5 +71,5 @@ task :cross do
   end
 
   # Make sure the port is compiled before cross compilation
-  Rake::Task["compile"].prerequisites.unshift "ports:libssh2"
+  Rake::Task["compile"].prerequisites.unshift("cross:openssl", "ports:libssh2")
 end
