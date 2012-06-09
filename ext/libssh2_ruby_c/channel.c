@@ -1,7 +1,7 @@
 #include <libssh2_ruby.h>
 
 // Prototypes
-static VALUE read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size);
+static VALUE channel_read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size);
 
  /*
  * Helpers to return the LIBSSH2_CHANNEL for the given instance.
@@ -36,7 +36,7 @@ channel_dealloc(LibSSH2_Ruby_Channel *channel_data) {
  * some space to store pointers to libssh2 structs in here.
  * */
 static VALUE
-allocate(VALUE self) {
+channel_allocate(VALUE self) {
     LibSSH2_Ruby_Channel *channel = malloc(sizeof(LibSSH2_Ruby_Channel));
     channel->channel = NULL;
     channel->session = NULL;
@@ -54,7 +54,7 @@ allocate(VALUE self) {
  *
  * */
 static VALUE
-initialize(VALUE self, VALUE rb_session) {
+channel_initialize(VALUE self, VALUE rb_session) {
     LIBSSH2_SESSION *session;
     LibSSH2_Ruby_Channel *channel_data;
 
@@ -99,7 +99,7 @@ initialize(VALUE self, VALUE rb_session) {
  * of the remote end stdin is closed.
  * */
 static VALUE
-close(VALUE self) {
+channel_close(VALUE self) {
     int result = libssh2_channel_close(get_channel(self));
     HANDLE_LIBSSH2_RESULT(result);
 }
@@ -112,7 +112,7 @@ close(VALUE self) {
  *
  * */
 static VALUE
-exec(VALUE self, VALUE command) {
+channel_exec(VALUE self, VALUE command) {
     int result;
 
     rb_check_type(command, T_STRING);
@@ -128,7 +128,7 @@ exec(VALUE self, VALUE command) {
  * Returns a boolean of whether an EOF packet was sent by the remote end.
  * */
 static VALUE
-eof(VALUE self) {
+channel_eof(VALUE self) {
     return libssh2_channel_eof(get_channel(self)) == 1 ? Qtrue : Qfalse;
 }
 
@@ -139,7 +139,7 @@ eof(VALUE self) {
  * Returns the exit status of the program.
  * */
 static VALUE
-get_exit_status(VALUE self) {
+channel_get_exit_status(VALUE self) {
     return INT2FIX(libssh2_channel_get_exit_status(get_channel(self)));
 }
 
@@ -153,8 +153,8 @@ get_exit_status(VALUE self) {
  *
  * */
 static VALUE
-read(VALUE self, VALUE buffer_size) {
-    return read_ex(self, INT2NUM(0), buffer_size);
+channel_read(VALUE self, VALUE buffer_size) {
+    return channel_read_ex(self, INT2NUM(0), buffer_size);
 }
 
 /*
@@ -166,7 +166,7 @@ read(VALUE self, VALUE buffer_size) {
  * will return `nil` when an EOF is reached.
  * */
 static VALUE
-read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size) {
+channel_read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size) {
     int result;
     char *buffer;
     int stream_id;
@@ -218,20 +218,20 @@ read_ex(VALUE self, VALUE rb_stream_id, VALUE rb_buffer_size) {
  * side. This can raise exceptions.
  * */
 static VALUE
-wait_closed(VALUE self) {
+channel_wait_closed(VALUE self) {
     int result = libssh2_channel_wait_closed(get_channel(self));
     HANDLE_LIBSSH2_RESULT(result);
 }
 
 void init_libssh2_channel() {
     VALUE cChannel = rb_cLibSSH2_Native_Channel;
-    rb_define_alloc_func(cChannel, allocate);
-    rb_define_method(cChannel, "initialize", initialize, 1);
-    rb_define_method(cChannel, "close", close, 0);
-    rb_define_method(cChannel, "exec", exec, 1);
-    rb_define_method(cChannel, "eof", eof, 0);
-    rb_define_method(cChannel, "get_exit_status", get_exit_status, 0);
-    rb_define_method(cChannel, "read", read, 1);
-    rb_define_method(cChannel, "read_ex", read_ex, 2);
-    rb_define_method(cChannel, "wait_closed", wait_closed, 0);
+    rb_define_alloc_func(cChannel, channel_allocate);
+    rb_define_method(cChannel, "initialize", channel_initialize, 1);
+    rb_define_method(cChannel, "close", channel_close, 0);
+    rb_define_method(cChannel, "exec", channel_exec, 1);
+    rb_define_method(cChannel, "eof", channel_eof, 0);
+    rb_define_method(cChannel, "get_exit_status", channel_get_exit_status, 0);
+    rb_define_method(cChannel, "read", channel_read, 1);
+    rb_define_method(cChannel, "read_ex", channel_read_ex, 2);
+    rb_define_method(cChannel, "wait_closed", channel_wait_closed, 0);
 }
