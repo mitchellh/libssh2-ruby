@@ -20,6 +20,16 @@
 } while (0)
 
 /*
+ * Convert Ruby socket's fileno into real Windows sockets that can be used
+ * with LibSSH2. This is a no-op for any other OS.
+ * */
+#ifdef _WIN32
+# define TO_SOCKET(x) _get_osfhandle(x)
+#else
+# define TO_SOCKET(x) x
+#endif
+
+/*
  * Macro that handles generic libssh2 return values as we normally
  * do throughout the library: return true for success, and raise an
  * exception for any errors.

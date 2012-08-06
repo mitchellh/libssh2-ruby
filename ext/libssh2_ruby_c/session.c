@@ -118,7 +118,7 @@ block_directions(VALUE self) {
 static VALUE
 handshake(VALUE self, VALUE num_fd) {
     int fd = NUM2INT(num_fd);
-    int ret = libssh2_session_handshake(get_session(self), fd);
+    int ret = libssh2_session_handshake(get_session(self), TO_SOCKET(fd));
     HANDLE_LIBSSH2_RESULT(ret);
 }
 
